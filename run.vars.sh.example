@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Environment variables used for project: Rename this file as run.vars.sh
+#
+
+export   DOCKDIR="${TACC_DOCK_BIN}"
+export  AMBERDIR="${TACC_AMBER_BIN}"
+export AMBERHOME="$AMBERHOME"
+export   ROOTDIR="/path/to/vs-lite"
+export MASTERDIR="${ROOTDIR}/zzz.master"
+export  PARAMDIR="${ROOTDIR}/zzz.parameters"
+export SCRIPTDIR="${ROOTDIR}/zzz.scripts"
+export   ZINCDIR="${ROOTDIR}/zzz.zinclibs"
+export    SYSTEM="sys_name"
+
