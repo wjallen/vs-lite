@@ -9,10 +9,10 @@
 #### Prep in Chimera
 
 1. Open protein / ligand in Chimera
-2. Add Hs and charge protein with recent AmberFF
-3. Add Hs and charge ligand with Gasteiger
-4. Save protein only as `XXX.receptor.mol2`
-5. Save ligands only as `XXX.ligand.mol2`
+2. Add Hs and charge ligand with Gasteiger
+3. Save ligand only as `XXX.ligand.mol2`
+4. Add Hs and charge protein with recent AmberFF (to check for missing atoms)
+5. Save protein only as `XXX.receptor.pdb`
 6. Delete Hs from protein and save again as `XXX.noH.pdb`
 
 

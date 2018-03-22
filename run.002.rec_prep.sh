@@ -52,6 +52,7 @@ EOF
 
 ${AMBERDIR}/tleap -s -f leap1.in >& leap1.log
 ${AMBERDIR}/ambpdb -p ${SYSTEM}.receptor.parm -tit "${SYSTEM}_processed" <${SYSTEM}.receptor.crd > ${SYSTEM}.receptor.processed.pdb
+rm leap.log
 
 
 ### Prepare the ligand file with antechamber
@@ -60,76 +61,31 @@ ${AMBERDIR}/antechamber -i ../001.lig-prep/${SYSTEM}.lig.am1bcc.mol2 -fi mol2  -
 ${AMBERDIR}/parmchk -i ${SYSTEM}.lig.ante.prep -f prepi -o ${SYSTEM}.lig.ante.frcmod
 
 
-exit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Make tleap input for Complex
+### Use leap to generate complex
 ##################################################
 cat << EOF > leap2.in
 set default PBradii mbondi2
 source leaprc.protein.ff14SB
 source leaprc.gaff
 loadoff ions94.lib
-PRO = loadpdb pro.noH.pdb
-EOF
-
-cat ssbonds.txt >> leap2.in
-
-cat << EOF >> leap2.in
+PRO = loadpdb ${SYSTEM}.receptor.processed.pdb
 loadamberparams ${SYSTEM}.lig.ante.frcmod
 loadamberprep ${SYSTEM}.lig.ante.prep
 LIG = loadpdb ${SYSTEM}.lig.ante.pdb
 REC = combine { PRO }
 COM = combine { REC LIG }
-saveamberparm LIG ${SYSTEM}.lig.parm ${SYSTEM}.lig.ori.crd
-saveamberparm PRO ${SYSTEM}.pro.parm ${SYSTEM}.pro.ori.crd
-saveamberparm REC ${SYSTEM}.rec.parm ${SYSTEM}.rec.ori.crd
-saveamberparm COM ${SYSTEM}.com.parm ${SYSTEM}.com.ori.crd
+saveamberparm LIG ${SYSTEM}.lig.parm ${SYSTEM}.lig.crd
+saveamberparm REC ${SYSTEM}.rec.parm ${SYSTEM}.rec.crd
+saveamberparm COM ${SYSTEM}.com.parm ${SYSTEM}.com.crd
 quit
 EOF
 ##################################################
 
-
-
-### Use leap to generate complex
-echo "------------ LEAP RUN_002 SUMMARY -------------"
-echo "Purpose: Generate complex with ssbonds"
-${AMBERDIR}/tleap -s -f com.leap.in >& ${SYSTEM}.com.leap.log
-${AMBERDIR}/ambpdb -p ${SYSTEM}.lig.parm -tit "lig" <${SYSTEM}.lig.ori.crd > ${SYSTEM}.lig.ori.pdb
-${AMBERDIR}/ambpdb -p ${SYSTEM}.pro.parm -tit "pro" <${SYSTEM}.pro.ori.crd > ${SYSTEM}.pro.ori.pdb
-${AMBERDIR}/ambpdb -p ${SYSTEM}.rec.parm -tit "rec" <${SYSTEM}.rec.ori.crd > ${SYSTEM}.rec.ori.pdb
-${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm -tit "com" <${SYSTEM}.com.ori.crd > ${SYSTEM}.com.ori.pdb
-echo -n "atoms in ${SYSTEM}.lig.ori.pdb = "
-grep -c ATOM ${SYSTEM}.lig.ori.pdb
-echo -n "atoms in ${SYSTEM}.pro.ori.pdb = "
-grep -c ATOM ${SYSTEM}.pro.ori.pdb
-echo -n "atoms in ${SYSTEM}.rec.ori.pdb = "
-grep -c ATOM ${SYSTEM}.rec.ori.pdb
-echo -n "atoms in ${SYSTEM}.com.ori.pdb = "
-grep -c ATOM ${SYSTEM}.com.ori.pdb
+${AMBERDIR}/tleap -s -f leap2.in >& leap2.log
+rm leap.log
 
 
 ### Run sander to minimize hydrogen positions
-echo "Creating ori.mol2 files before minimization"
-${AMBERDIR}/ambpdb -p ${SYSTEM}.lig.parm < ${SYSTEM}.lig.ori.crd -mol2 > ${SYSTEM}.lig.ori.mol2 
-${AMBERDIR}/ambpdb -p ${SYSTEM}.pro.parm < ${SYSTEM}.pro.ori.crd -mol2 > ${SYSTEM}.pro.ori.mol2 
-${AMBERDIR}/ambpdb -p ${SYSTEM}.rec.parm < ${SYSTEM}.rec.ori.crd -mol2 > ${SYSTEM}.rec.ori.mol2 
-${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm < ${SYSTEM}.com.ori.crd -mol2 > ${SYSTEM}.com.ori.mol2 
-
 ##################################################
 cat <<EOF >sander.in
 01mi minimization
@@ -139,46 +95,17 @@ cat <<EOF >sander.in
     ntb = 0, cut = 10.0,
     ntr = 1, drms=0.1,
     restraintmask = "!@H=",
-    restraint_wt  = 1000.0
+    restraint_wt = 1000.0
 &end
 EOF
 ##################################################
 
-echo "---------------------------------------------------------"
-echo "Minimizing complex with sander"
-${AMBERDIR}/sander -O -i sander.in -o sander.out -p ${SYSTEM}.com.parm -c ${SYSTEM}.com.ori.crd -ref ${SYSTEM}.com.ori.crd -r ${SYSTEM}.com.min.rst
-${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm -tit "${SYSTEM}.com.min" <${SYSTEM}.com.min.rst> ${SYSTEM}.com.min.pdb
-grep "SANDER BOMB" sander.out  
-grep -A1 NSTEP sander.out | tail -2
+${AMBERDIR}/sander -O -i sander.in -o sander.out -p ${SYSTEM}.com.parm -c ${SYSTEM}.com.crd -ref ${SYSTEM}.com.crd -r ${SYSTEM}.com.min.rst
+${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm -tit "${SYSTEM}.com.min" -c ${SYSTEM}.com.min.rst> ${SYSTEM}.com.min.pdb
 
-if (! -s ${SYSTEM}.com.min.rst) then
-	echo "Complex minimizaton failed! Terminating."
-	exit
-endif
+exit
 
 
-### Run sander on ligand alone to see if gaff screwed up anything
-echo "---------------------------------------------------------"
-
-##################################################
-cat <<EOF1 >sander.lig.in
-01mi minimization
- &cntrl
-    imin = 1, maxcyc = 1000,
-    ntpr = 10, ntx=1,
-    ntb = 0, cut = 10.0,
-    ntr = 0, drms=0.1,
-&end
-EOF1
-##################################################
-
-echo "Minimizing unrestrained gas-phase ligand alone with sander"
-${AMBERDIR}/sander -O -i sander.lig.in -o sander.lig.out -p ${SYSTEM}.lig.parm -c ${SYSTEM}.lig.ori.crd -r ${SYSTEM}.lig.only.min.rst
-${AMBERDIR}/ambpdb -p ${SYSTEM}.lig.parm < ${SYSTEM}.lig.only.min.rst -mol2 > ${SYSTEM}.lig.only.min.mol2
-grep "SANDER BOMB" sander.lig.out
-grep -A1 NSTEP sander.lig.out | tail -2
-echo -n "Minimizing Ligand 1000 steps alone rmsd "
-python ${scriptdir}/calc_rmsd_mol2.py ${SYSTEM}.lig.ori.mol2 ${SYSTEM}.lig.only.min.mol2
 
 
 
@@ -203,16 +130,6 @@ ${AMBERDIR}/ambpdb -p ${SYSTEM}.lig.parm < lig.min.rst -mol2 > ${SYSTEM}.lig.min
 ${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm < ${SYSTEM}.com.min.rst -mol2 > ${SYSTEM}.com.min.mol2 
 
 
-### Compute some RMSDs to check for consistency
-echo -n "Minimized Ligand rmsd "
-python ${scriptdir}/calc_rmsd_mol2.py ${SYSTEM}.lig.ori.mol2 ${SYSTEM}.lig.min.mol2
-echo -n "Minimized Receptor rmsd "
-python ${scriptdir}/calc_rmsd_mol2.py ${SYSTEM}.rec.ori.mol2 ${SYSTEM}.rec.min.mol2
-echo -n "Minimized Complex rmsd "
-python ${scriptdir}/calc_rmsd_mol2.py ${SYSTEM}.com.ori.mol2 ${SYSTEM}.com.min.mol2
-python ${scriptdir}/clean_mol2.py ${SYSTEM}.rec.min.mol2 ${SYSTEM}.rec.python.mol2 
-python ${scriptdir}/clean_mol2.py ${SYSTEM}.lig.min.mol2 ${SYSTEM}.lig.python.mol2
-
 
 ### Run check grid
 ##################################################
@@ -225,7 +142,7 @@ receptor_out_file              ${SYSTEM}.rec.clean.mol2
 EOF
 ##################################################
 
-${dockdir}/grid -v -i grid.in -o grid.out
+${DOCKDIR}/grid -v -i grid.in -o grid.out
 echo -n "CHECK GRID: " 
 grep "Total charge on" grid.out  
 
