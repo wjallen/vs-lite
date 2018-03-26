@@ -33,8 +33,8 @@ cd ${ROOTDIR}/${SYSTEM}/002.rec-prep/
 
 
 ### Remove unusual newlines from receptor
-cp ${MASTERDIR}/${SYSTEM}.receptor.pdb ./
-perl -pi -e 's/\r\n/\n/g' ${SYSTEM}.receptor.pdb
+cp ${MASTERDIR}/${SYSTEM}.receptor.pdb ./${SYSTEM}.rec.pdb
+perl -pi -e 's/\r\n/\n/g' ${SYSTEM}.rec.pdb
 
 
 ### Read protein in with leap to renumber residues from 1
@@ -43,16 +43,15 @@ cat << EOF > leap1.in
 set default PBradii mbondi2
 source leaprc.protein.ff14SB
 loadoff ions94.lib
-REC = loadpdb ${SYSTEM}.receptor.pdb
-saveamberparm REC ${SYSTEM}.receptor.parm ${SYSTEM}.receptor.crd
+REC = loadpdb ${SYSTEM}.rec.pdb
+saveamberparm REC ${SYSTEM}.rec.parm ${SYSTEM}.rec.crd
 charge REC
 quit
 EOF
 ##################################################
 
 ${AMBERDIR}/tleap -s -f leap1.in >& leap1.log
-${AMBERDIR}/ambpdb -p ${SYSTEM}.receptor.parm -tit "${SYSTEM}_processed" <${SYSTEM}.receptor.crd > ${SYSTEM}.receptor.processed.pdb
-rm leap.log
+${AMBERDIR}/ambpdb -p ${SYSTEM}.rec.parm -tit "${SYSTEM}_processed" <${SYSTEM}.rec.crd > ${SYSTEM}.rec.processed.pdb
 
 
 ### Prepare the ligand file with antechamber
@@ -68,11 +67,10 @@ set default PBradii mbondi2
 source leaprc.protein.ff14SB
 source leaprc.gaff
 loadoff ions94.lib
-PRO = loadpdb ${SYSTEM}.receptor.processed.pdb
+REC = loadpdb ${SYSTEM}.rec.processed.pdb
 loadamberparams ${SYSTEM}.lig.ante.frcmod
 loadamberprep ${SYSTEM}.lig.ante.prep
 LIG = loadpdb ${SYSTEM}.lig.ante.pdb
-REC = combine { PRO }
 COM = combine { REC LIG }
 saveamberparm LIG ${SYSTEM}.lig.parm ${SYSTEM}.lig.crd
 saveamberparm REC ${SYSTEM}.rec.parm ${SYSTEM}.rec.crd
@@ -82,7 +80,6 @@ EOF
 ##################################################
 
 ${AMBERDIR}/tleap -s -f leap2.in >& leap2.log
-rm leap.log
 
 
 ### Run sander to minimize hydrogen positions
@@ -101,34 +98,40 @@ EOF
 ##################################################
 
 ${AMBERDIR}/sander -O -i sander.in -o sander.out -p ${SYSTEM}.com.parm -c ${SYSTEM}.com.crd -ref ${SYSTEM}.com.crd -r ${SYSTEM}.com.min.rst
-${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm -tit "${SYSTEM}.com.min" -c ${SYSTEM}.com.min.rst> ${SYSTEM}.com.min.pdb
-
-exit
-
-
-
-
 
 
 ### Extract some files from the minimized complex
-echo "---------------------------------------------------------"
-echo "Extracting receptor with ptraj"
-echo "trajin ${SYSTEM}.com.min.rst" > rec.ptraj.in
-echo "strip :LIG" >> rec.ptraj.in
-echo "trajout rec.min.rst restart"  >> rec.ptraj.in
-${AMBERDIR}/cpptraj -p ${SYSTEM}.com.parm -i rec.ptraj.in >& rec.ptraj.out
-grep STRIP rec.ptraj.out 
-echo "Writing receptor mol2"
-${AMBERDIR}/ambpdb -p ${SYSTEM}.rec.parm < rec.min.rst -mol2 > ${SYSTEM}.rec.min.mol2
-echo "Creating ligand mol2 file"
-echo "trajin ${SYSTEM}.com.min.rst" > lig.ptraj.in
-echo "strip !(:LIG)" >> lig.ptraj.in
-echo "trajout lig.min.rst restart"  >> lig.ptraj.in
-${AMBERDIR}/cpptraj ${SYSTEM}.com.parm -i lig.ptraj.in >& lig.ptraj.out
-grep STRIP lig.ptraj.out
-${AMBERDIR}/ambpdb -p ${SYSTEM}.lig.parm < lig.min.rst -mol2 > ${SYSTEM}.lig.min.mol2 
-${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm < ${SYSTEM}.com.min.rst -mol2 > ${SYSTEM}.com.min.mol2 
+##################################################
+cat <<EOF >ptraj1.in
+trajin ${SYSTEM}.com.min.rst
+strip :LIG
+trajout ${SYSTEM}.rec.min.rst restart
+EOF
+##################################################
 
+${AMBERDIR}/cpptraj -p ${SYSTEM}.com.parm -i ptraj1.in >& ptraj1.out
+${AMBERDIR}/ambpdb -p ${SYSTEM}.rec.parm < ${SYSTEM}.rec.min.rst -mol2 > ${SYSTEM}.rec.min.mol2
+
+
+##################################################
+cat <<EOF >ptraj2.in
+trajin ${SYSTEM}.com.min.rst
+strip !(:LIG) 
+trajout ${SYSTEM}.lig.min.rst restart
+EOF
+##################################################
+
+${AMBERDIR}/cpptraj ${SYSTEM}.com.parm -i ptraj2.in >& ptraj2.out
+${AMBERDIR}/ambpdb -p ${SYSTEM}.lig.parm < ${SYSTEM}.lig.min.rst -mol2 > ${SYSTEM}.lig.min.mol2 
+${AMBERDIR}/ambpdb -p ${SYSTEM}.com.parm -c ${SYSTEM}.com.min.rst -mol2 > ${SYSTEM}.com.min.mol2 
+
+
+### Change amber to sybyl atom types in receptor
+cp ${UTILSDIR}/ATOMTYPE_CHECK.TAB ./
+cp ${UTILSDIR}/fix_margins.py ./
+
+awk 'NR==FNR{a[$1]=$2} NR>FNR{$6=a[$6];print}' ATOMTYPE_CHECK.TAB ${SYSTEM}.rec.min.mol2 > ${SYSTEM}.rec.awk.mol2
+python fix_margins.py ${SYSTEM}.rec.awk.mol2 ${SYSTEM}.rec.python.mol2
 
 
 ### Run check grid
@@ -143,18 +146,15 @@ EOF
 ##################################################
 
 ${DOCKDIR}/grid -v -i grid.in -o grid.out
-echo -n "CHECK GRID: " 
-grep "Total charge on" grid.out  
 
 
 ### Remove some extra files
-rm -f showbox vdw.defn chem.defn box.pdb
-rm -f antechamber tleap teLeap parmchk ambpdb sander
-rm -f ANTE* ATOMTYPE.INF NEWPDB.PDB PREP.INF
-rm -f ions.frcmod ions.lib parm.e16.dat gaff*frcmod y2p.* heme.*
-rm -f ${SYSTEM}.rec.min.mol2 ${SYSTEM}.rec.nomin.mol2 ${SYSTEM}.rec.foramber.pdb 
-rm -f ${SYSTEM}.com.* ${SYSTEM}.lig.* ${SYSTEM}.rec.leap* ${SYSTEM}.rec.gas*
-rm -f mdinfo grid.in sander.* ssbonds.txt
+rm -f ANTECHAMBER* ATOMTYPE.INF NEWPDB.PDB PREP.INF
+rm -f *lig.min.pdb *.lig.ante.* *.crd *.parm *.rst
+rm -f leap.log mdinfo
+rm -f *.rec.python.mol2 *.rec.awk.mol2
+rm -f ATOMTYPE_CHECK.TAB fix_margins.py
 
 
 exit
+

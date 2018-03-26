@@ -59,11 +59,11 @@ ${AMBERDIR}/acdoctor -i ${SYSTEM}.lig.processed.mol2 -f mol2
 ${AMBERDIR}/antechamber -fi mol2 -fo mol2 -c bcc -j 5 -at sybyl -s 2 -pf y \
                         -i ${SYSTEM}.lig.processed.mol2 -o ${SYSTEM}.lig.am1bcc.mol2
 
-if [ `grep "No convergence in SCF" sqm.out | wc -l` ]; then
-${AMBERDIR}/antechamber -fi mol2 -fo mol2 -c bcc -j 5 -at sybyl -s 2 -pf y \
-                        -ek "itrmax=100000, qm_theory='AM1', grms_tol=0.0002, tight_p_conv=0, scfconv=1.d-8" \
-                        -i ${SYSTEM}.lig.processed.mol2 -o ${SYSTEM}.lig.am1bcc.mol2
-fi
+#if [ `grep "No convergence in SCF" sqm.out | wc -l` ]; then
+#${AMBERDIR}/antechamber -fi mol2 -fo mol2 -c bcc -j 5 -at sybyl -s 2 -pf y \
+#                        -ek "itrmax=100000, qm_theory='AM1', grms_tol=0.0002, tight_p_conv=0, scfconv=1.d-8" \
+#                        -i ${SYSTEM}.lig.processed.mol2 -o ${SYSTEM}.lig.am1bcc.mol2
+#fi
 
 if [ `grep "No convergence in SCF" sqm.out | wc -l` ]; then
 ${AMBERDIR}/antechamber -fi mol2 -fo mol2 -c gas -j 5 -at sybyl -s 2 -pf y \
@@ -77,3 +77,5 @@ mv sqm.out sqm.lig.out
 mv sqm.in sqm.lig.in
 rm temp.mol2
 
+
+exit

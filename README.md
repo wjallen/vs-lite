@@ -15,6 +15,31 @@
 5. Save protein only as `XXX.receptor.pdb`
 6. Delete Hs from protein and save again as `XXX.noH.pdb`
 
+### Manual Modifications
+
+May need to make manual modifications to protein / ligand that are only
+apparent after encountering errors in this pipeline. Things to look for:
+
+1. Ligand residue name in mol2 file should be `LIG`
+2. Ligand atom valences
+3. Protein rotamers clash with ligand
+4. Protein amino acids missing atoms
+
+### `run.vars.sh`
+
+ Rename `run.vars.sh.example` as `run.vars.sh` and customize to local environment
+
+
+### `run.001.lig_prep.sh`
+
+Should obtain reasonable `SYS.lig.am1bcc.mol2`. Charge should be correct, atoms
+should not have moved.
+
+### `run.002.rec_prep.sh`
+
+Check all `.log` and `.out` files for errors. Open up `SYS.rec.clean.mol2` and
+inspect in Chimera. Open up `SYS.lig.am1bcc.mol2` and make sure it is still in
+the binding site.
 
 
 
