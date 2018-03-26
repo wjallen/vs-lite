@@ -2,7 +2,6 @@
 
 import math, sys
 import os.path
-#import cmath
 
 
 class Mol:
