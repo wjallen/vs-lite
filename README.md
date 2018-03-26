@@ -25,23 +25,25 @@ apparent after encountering errors in this pipeline. Things to look for:
 3. Protein rotamers clash with ligand
 4. Protein amino acids missing atoms
 
-### `run.vars.sh`
+### run.vars.sh
 
  Rename `run.vars.sh.example` as `run.vars.sh` and customize to local environment
 
 
-### `run.001.lig_prep.sh`
+### run.001.lig_prep.sh
 
 Should obtain reasonable `SYS.lig.am1bcc.mol2`. Charge should be correct, atoms
 should not have moved.
 
-### `run.002.rec_prep.sh`
+
+### run.002.rec_prep.sh
 
 Check all `.log` and `.out` files for errors. Open up `SYS.rec.clean.mol2` and
 inspect in Chimera. Open up `SYS.lig.am1bcc.mol2` and make sure it is still in
 the binding site.
 
-### `run.003.dms_sph.sh`
+
+### run.003.dms_sph.sh
 
 The relocatable `dms` executable should work. Install a new one if it does not:
 
@@ -54,5 +56,6 @@ This also applies to `sphgen_cpp` - it should work, install a new one of it does
 Check that `SYS.rec.close.sph` fills the expected binding site and manually
 remove spheres if needed.
 
-### `run.004.box_grid.sh`
+
+### run.004.box_grid.sh
 
