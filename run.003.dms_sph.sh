@@ -91,6 +91,7 @@ mv selected_spheres_1.pdb ${SYSTEM}.rec.close.sph.pdb
 ### Remove some files
 rm -f clusters*pdb
 rm -f dms radii sphgen_cpp
+rm -f *.lig.am1bcc.mol2
 
 
 exit
