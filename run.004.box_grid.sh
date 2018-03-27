@@ -40,6 +40,7 @@ ${SYSTEM}.rec.close.sph
 ${SYSTEM}.box.pdb
 EOF
 ##################################################
+
 ${DOCKDIR}/showbox < box.in
 
 
@@ -64,10 +65,16 @@ receptor_file                  ${SYSTEM}.rec.clean.mol2
 box_file                       ${SYSTEM}.box.pdb
 vdw_definition_file            vdw.defn
 chemical_definition_file       chem.defn
-score_grid_prefix              ${SYSTEM}.rec
+score_grid_prefix              ${SYSTEM}.grid
 EOF
 ##################################################
+
 ${DOCKDIR}/grid -v -i grid.in -o grid.out
+
+
+### Remove some files
+rm -f chem.defn vdw.defn
+rm -f *.rec.clean.mol2 *.rec.close.sph
 
 
 exit
