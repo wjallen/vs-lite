@@ -12,7 +12,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/run.vars.sh"
 
 
-### Check to see if the ligand file exists
+### Check to see if the ligand file was prepared correctly
 if [ ! -e ${ROOTDIR}/${SYSTEM}/001.lig-prep/${SYSTEM}.lig.am1bcc.mol2 ]; then
 	echo "You have to prepare the ligand first. Exiting."
 	exit

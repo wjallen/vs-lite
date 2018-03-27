@@ -59,3 +59,8 @@ remove spheres if needed.
 
 ### run.004.box_grid.sh
 
+Open up `SYS.box.pdb` and make sure it surrounds the ligand / spheres with a
+suitable extra margin. Inspect the grid log and make sure there are no errors.
+
+
+

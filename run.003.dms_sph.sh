@@ -8,16 +8,16 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/run.vars.sh"
 
 
-### Check to see if the ligand file exists
-if [ ! -e ${ROOTDIR}/${SYSTEM}/001.lig-prep/${SYSTEM}.lig.am1bcc.mol2 ]; then
-	echo "Ligand file does not seem to exist. Exiting."
+### Check to see if the protein file was prepared correctly
+if [ ! -e ${ROOTDIR}/${SYSTEM}/002.rec-prep/${SYSTEM}.rec.clean.mol2 ]; then
+	echo "You have to prepare the protein first. Exiting."
 	exit
 fi
 
 
-### Check to see if the protein file is present, and prepare it for amber
-if [ ! -e ${ROOTDIR}/${SYSTEM}/002.rec-prep/${SYSTEM}.rec.clean.mol2 ]; then
-	echo "Receptor file does not seem to exist. Exiting."
+### Check to see if the noH protein exists
+if [ ! -e ${MASTERDIR}/${SYSTEM}.noH.pdb ]; then
+	echo "Ligand file does not seem to exist. Exiting."
 	exit
 fi
 
