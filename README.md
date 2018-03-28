@@ -64,3 +64,12 @@ suitable extra margin. Inspect the grid log and make sure there are no errors.
 
 
 
+### run.006a.dock_SGE.sh
+
+Run this script to submit jobs parametrically. Each output dir should have a
+final `output_scored.mol2`. Use grep to count the number of molecules in each
+to make sure it is approximately what is expected. This may not be strictly 
+necessary because the next script takes care of this.
+
+
+
