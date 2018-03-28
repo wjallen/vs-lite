@@ -31,7 +31,9 @@ cd ${ROOTDIR}/${SYSTEM}/006.dock-SGE/${VENDOR}
 export NUM_CHUNKS=` ls ${ZINCDIR}/${VENDOR} | grep -c chunk `
 echo "number of chunks = ${NUM_CHUNKS}"
 export CHUNK="0"
-#export NUM_CHUNKS="5"     # manual override
+
+export NUM_CHUNKS="10"     # manual override
+export CHUNK="0"           # manual override
 
 
 ### Iterate over each chunk
@@ -128,7 +130,7 @@ cat <<EOF >${SYSTEM}.${VENDOR}.${CHUNK}.dock_SGE.slurm
 #SBATCH -p skx-normal             # Queue (partition) name
 #SBATCH -N 4                      # Total # of nodes 
 #SBATCH -n 192                    # Total # of mpi tasks
-#SBATCH -t 36:00:00               # Run time (hh:mm:ss)
+#SBATCH -t 24:00:00               # Run time (hh:mm:ss)
 #SBATCH -A Sepin-identification   # Allocation name (req'd if you have more than 1)
 
 # Launch MPI code... 
