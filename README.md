@@ -63,8 +63,15 @@ Open up `SYS.box.pdb` and make sure it surrounds the ligand / spheres with a
 suitable extra margin. Inspect the grid log and make sure there are no errors.
 
 
+### run.005.vendor_prep.sh
+
+*Coming soon*
+
 
 ### run.006a.dock_SGE.sh
+
+First make sure job run parameters - wall clock time, number of nodes, project
+name, etc - are set correctly in this file. 
 
 Run this script to submit jobs parametrically. Each output dir should have a
 final `output_scored.mol2`. Use grep to count the number of molecules in each
@@ -72,4 +79,8 @@ to make sure it is approximately what is expected. This may not be strictly
 necessary because the next script takes care of this.
 
 
+### run.006b.dock_leftovers.sh
+
+Set the max number of 'leftover' molecules you wish to dock, and also set the
+job parameters as described in the previous step.
 
