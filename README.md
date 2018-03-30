@@ -92,3 +92,6 @@ input as the previous scripts without any change.
 
 
 ### run.008.footprint_rescore.sh
+
+Run this script after cartesian minimization complete. Should result in a final
+`VENDOR.output_scored.mol2` and `VENDOR.output_footprint_scored.txt`.

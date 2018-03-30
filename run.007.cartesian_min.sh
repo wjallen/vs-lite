@@ -10,8 +10,8 @@ source "${DIR}/run.vars.sh"
 
 
 ### Check to see if at least one chunk of molecules exists
-if [ $( ls ${ZINCDIR}/${VENDOR} | grep -c chunk ) -lt 1 ]; then
-	echo "You have to prepare the chunks first. Exiting."
+if [ ! -e ${ROOTDIR}/${SYSTEM}/006.dock-SGE/${VENDOR}/chunk0/${VENDOR}.0.output_scored.mol2 ]; then
+	echo "You have to dock the chunks first. Exiting."
 	exit
 fi
 
