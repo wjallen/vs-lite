@@ -31,9 +31,6 @@ export NUM_CHUNKS=` ls ${ZINCDIR}/${VENDOR} | grep -c chunk `
 echo "number of chunks = ${NUM_CHUNKS}"
 export CHUNK="0"
 
-#export NUM_CHUNKS="20"     # manual override
-#export CHUNK="10"           # manual override
-
 
 ### Iterate over each chunk, concatenate them together
 while [ ${CHUNK} -lt ${NUM_CHUNKS} ]; do
@@ -127,7 +124,7 @@ cat <<EOF >${SYSTEM}.${VENDOR}.cartesian_min.slurm
 #SBATCH -p skx-normal             # Queue (partition) name
 #SBATCH -N 4                      # Total # of nodes 
 #SBATCH -n 192                    # Total # of mpi tasks
-#SBATCH -t 48:00:00               # Run time (hh:mm:ss)
+#SBATCH -t 24:00:00               # Run time (hh:mm:ss)
 #SBATCH -A Sepin-identification   # Allocation name (req'd if you have more than 1)
 
 # Launch MPI code... 
