@@ -84,3 +84,11 @@ necessary because the next script takes care of this.
 Set the max number of 'leftover' molecules you wish to dock, and also set the
 job parameters as described in the previous step.
 
+
+### run.007.cartesian_min.sh
+
+Run this script after all docking complete. Should use many of the same params /
+input as the previous scripts without any change.
+
+
+### run.008.footprint_rescore.sh
