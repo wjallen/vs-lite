@@ -60,7 +60,7 @@ conformer_search_type                                        rigid
 use_internal_energy                                          yes
 internal_energy_rep_exp                                      12
 internal_energy_cutoff                                       100.0
-ligand_atom_file                                             test.mol2
+ligand_atom_file                                             input.mol2
 limit_max_ligands                                            no
 skip_molecule                                                no
 read_mol_solvation                                           no
