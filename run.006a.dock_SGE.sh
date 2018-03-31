@@ -136,7 +136,7 @@ cat <<EOF >${SYSTEM}.${VENDOR}.${CHUNK}.dock_SGE.slurm
 
 # Launch MPI code... 
 
-cd ${ROOTDIR}/${SYSTEM}/006.dock-SGE/${VENDOR}/chunk${chunk}/
+cd ${ROOTDIR}/${SYSTEM}/006.dock-SGE/${VENDOR}/chunk${CHUNK}/
 ibrun ${DOCKDIR}/dock6.mpi -v -i ${SYSTEM}.${VENDOR}.${CHUNK}.dock_SGE.in \
                               -o ${SYSTEM}.${VENDOR}.${CHUNK}.dock_SGE.out
 
