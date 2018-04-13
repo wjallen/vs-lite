@@ -204,8 +204,8 @@ cat <<EOF >${SYSTEM}.${VENDOR}.footprint_rescore.slurm
 #SBATCH -p skx-normal             # Queue (partition) name
 #SBATCH -N 1                      # Total # of nodes 
 #SBATCH -n 48                     # Total # of mpi tasks
-#SBATCH -t 24:00:00               # Run time (hh:mm:ss)
-#SBATCH -A Sepin-identification   # Allocation name (req'd if you have more than 1)
+#SBATCH -t 18:00:00               # Run time (hh:mm:ss)
+#SBATCH -A DOCK-at-TACC           # Allocation name (req'd if you have more than 1)
 
 # Launch MPI code... 
 
