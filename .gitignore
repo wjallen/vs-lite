@@ -1,1 +1,5 @@
 run.vars.sh
+zzz.master/*
+!zzz.master/.gitkeep
+zzz.zinclibs/*
+!zzz.zinclibs/.gitkeep
