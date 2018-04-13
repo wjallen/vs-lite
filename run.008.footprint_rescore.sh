@@ -153,7 +153,7 @@ descriptor_fps_score_vdw_rep_rad_scale                       1
 descriptor_fps_score_use_distance_dependent_dielectric       yes
 descriptor_fps_score_dielectric                              4.0
 descriptor_fps_score_vdw_fp_scale                            1
-descriptor_fps_score_es_fp_scale                             10
+descriptor_fps_score_es_fp_scale                             1
 descriptor_fps_score_hb_fp_scale                             0
 descriptor_fms_score_use_ref_mol2                            yes
 descriptor_fms_score_ref_mol2_filename                       ${SYSTEM}.lig.min.mol2
