@@ -6,7 +6,7 @@
 export      DOCKDIR="${TACC_DOCK_BIN}"
 export   DOCKPARAMS="${TACC_DOCK_PARAM}"
 export     AMBERDIR="${AMBER_PREFIX}/bin"
-export      ROOTDIR="/path/to/vs-lite"
+export      ROOTDIR="/path/to/vs-protocol"
 export    MASTERDIR="${ROOTDIR}/zzz.master"
 export     UTILSDIR="${ROOTDIR}/zzz.utils"
 export      ZINCDIR="${ROOTDIR}/zzz.zinclibs"
