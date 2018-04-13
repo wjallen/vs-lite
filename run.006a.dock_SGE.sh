@@ -132,7 +132,7 @@ cat <<EOF >${SYSTEM}.${VENDOR}.${CHUNK}.dock_SGE.slurm
 #SBATCH -N 4                      # Total # of nodes 
 #SBATCH -n 192                    # Total # of mpi tasks
 #SBATCH -t 24:00:00               # Run time (hh:mm:ss)
-#SBATCH -A Sepin-identification   # Allocation name (req'd if you have more than 1)
+#SBATCH -A DOCK-at-TACC           # Allocation name (req'd if you have more than 1)
 
 # Launch MPI code... 
 
