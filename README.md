@@ -95,3 +95,10 @@ input as the previous scripts without any change.
 
 Run this script after cartesian minimization complete. Should result in a final
 `VENDOR.output_scored.mol2` and `VENDOR.output_footprint_scored.txt`.
+
+
+### run.009.postprocess.sh
+
+Set `MAX_NUM` to the maximum number of molecules to consider for clustering.
+For example, setting `MAX_NUM` to 100000 will cause it to remove everything 
+except the best 100000 scoring molecules, and cluster those.

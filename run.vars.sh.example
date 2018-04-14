@@ -17,5 +17,6 @@ export   ATTRACTIVE="6"
 export    REPULSIVE="9"
 export GRID_SPACING="0.3"
 export   BOX_MARGIN="10"
+export      MAX_NUM="100000"
 
 
