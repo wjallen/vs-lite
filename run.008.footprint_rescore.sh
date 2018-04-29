@@ -4,6 +4,7 @@
 # with a footprint reference.
 #
 
+exit
 ### Set some paths
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/run.vars.sh"

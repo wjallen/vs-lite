@@ -4,6 +4,7 @@
 # rescore each of them in Cartesian space.
 #
 
+exit
 ### Set some paths
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/run.vars.sh"

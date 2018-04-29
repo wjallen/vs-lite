@@ -6,6 +6,15 @@ import subprocess
 from math import sqrt
 
 
+class molecule_small:
+    def __init__(self, name_dock, cont_score):
+        self.name_dock   = str(name_dock)
+        self.cont_score  = float(cont_score)
+
+    def __cmp__(self, other):
+        return cmp(self.cont_score, other.cont_score)
+        
+
 # Class for storing molecule information
 class molecule:
     def __init__(self, name_dock,
@@ -22,9 +31,11 @@ class molecule:
         self.int_energy  = float(int_energy)
         self.num_hb      = int(num_hb)
         self.rot_bond    = int(rot_bond)
+        self.fps_sum     = float(fps_vdw + fps_es)
         self.fps_vdw     = float(fps_vdw)
         self.fps_es      = float(fps_es)
         self.fps_hb      = float(fps_hb)
+        self.desc_score  = float(cont_score + fps_vdw + fps_es)
         self.fms         = float(fms)
         self.fms_tot     = int(fms_tot)
         self.fms_max_ref = int(fms_max_ref)
@@ -47,19 +58,76 @@ class molecule:
     def __cmp__(self, other):
         return cmp(self.cont_score, other.cont_score)
 
+# Function to write molecule information in csv format
+def write_molecule_small(data, file):
+    file.write( str(data.name_dock) + "," + str(data.cont_score) + "\n" )
+
+
 
 # Function to write molecule information in csv format
 def write_molecule(data, file):
     file.write( str(data.name_dock) + "," + str(data.cont_score) + "," + str(data.vdw) + "," +
                 str(data.es) + "," + str(data.int_energy) + "," + str(data.num_hb) + "," +
-                str(data.rot_bond) + "," + str(data.fps_vdw) + "," + str(data.fps_es) + "," + 
-                str(data.fps_hb) + "," + str(data.fms) + "," + str(data.fms_tot) + "," +
+                str(data.rot_bond) + "," + str(data.fps_sum) + "," + str(data.fps_vdw) + "," + str(data.fps_es) + "," + 
+                str(data.fps_hb) + "," + str(data.desc_score) + "," + str(data.fms) + "," + str(data.fms_tot) + "," +
                 str(data.fms_max_ref) + "," + str(data.fms_max_lig) + "," + str(data.fms_nphob) + "," +
                 str(data.fms_ndon) + "," + str(data.fms_nacc) + "," + str(data.fms_naro) + "," +
                 str(data.fms_npos) + "," + str(data.fms_nneg) + "," + str(data.fms_nring) + "," +
                 str(data.vos) + "," + str(data.vos_geo) + "," + str(data.vos_hvy) + "," +
                 str(data.vos_pos) + "," + str(data.vos_neg) + "," + str(data.vos_phob) + "," +
                 str(data.vos_phil) + "\n" )
+
+
+
+# Read molecules from a multi mol2 file
+def read_molecule_small(in_mol2, in_rotbonds, max_num):
+
+    infile = open(in_mol2, 'r')
+    long_list = []
+
+    for line in infile:
+
+        linesplit = line.split() 
+        if ( len (linesplit) == 3):
+
+            if (linesplit[1] == "Name:"): name_dock = str(linesplit[2])
+            elif (linesplit[1] == "Continuous_Score:"):
+                cont_score = float(linesplit[2])
+                my_data = molecule_small( name_dock, cont_score)
+                long_list.append(my_data)
+		if (len(long_list) % 1000 == 0):
+                    print len(long_list)
+            else:
+                pass
+
+    infile.close()
+    del(infile)
+    del(line)
+
+    # sort by the continuous score (vdw+es)
+    print "Sorting..."
+    long_list.sort()
+
+
+    # make a short list
+    short_list = []
+    zinc_names = []
+    i = 0
+    j = 0
+
+    while (i < max_num):
+        if j in range(len(long_list)):
+            if not (long_list[j].name_dock in zinc_names):
+                zinc_names.append(long_list[j].name_dock)
+                short_list.append(long_list[j])
+                j += 1
+                i += 1
+            else:
+                j += 1
+        else:
+            break
+
+    return long_list, short_list;
 
 
 # Read molecules from a multi mol2 file
@@ -117,40 +185,53 @@ def read_molecule(in_mol2, in_rotbonds, max_num):
                                     fms_nphob, fms_ndon, fms_nacc, fms_naro, fms_npos, fms_nneg, fms_nring,
                                     vos, vos_geo, vos_hvy, vos_pos, vos_neg, vos_phob, vos_phil )
                 long_list.append(my_data)
+		if (len(long_list) % 1000 == 0):
+                    print len(long_list)
 
     infile.close()
     del(infile)
     del(line)
 
     # sort by the continuous score (vdw+es)
-    long_list.sort()
+    #print "Sorting..."
+    #long_list.sort()
 
 
-    # make a short list
+    ## make a short list
     short_list = []
-    zinc_names = []
-    i = 0
-    j = 0
+    #zinc_names = []
+    #i = 0
+    #j = 0
 
-    while (i < max_num):
-        if j in range(len(long_list)):
-            if not (long_list[j].name_dock in zinc_names):
-                zinc_names.append(long_list[j].name_dock)
-                short_list.append(long_list[j])
-                j += 1
-                i += 1
-            else:
-                j += 1
-        else:
-            break
+    #while (i < max_num):
+    #    if j in range(len(long_list)):
+    #        if not (long_list[j].name_dock in zinc_names):
+    #            zinc_names.append(long_list[j].name_dock)
+    #            short_list.append(long_list[j])
+    #            j += 1
+    #            i += 1
+    #        else:
+    #            j += 1
+    #    else:
+    #        break
 
     return long_list, short_list;
+
+# Write a new csv file
+def write_csv_small(data, filename):
+    filehandle = open(filename, 'w')
+    filehandle.write( "name_dock,cont_score\n" )
+    for i in range(len(data)):
+        write_molecule_small(data[i], filehandle)
+    filehandle.close()
+    return;
+
 
 
 # Write a new csv file
 def write_csv(data, filename):
     filehandle = open(filename, 'w')
-    filehandle.write( "name_dock,cont_score,vdw,es,int_energy,num_hb,rot_bond,fps_vdw,fps_es,fps_hb,fms,fms_tot,fms_max_ref,fms_max_lig,fms_nphob,fms_ndon,fms_nacc,fms_naro,fms_npos,fms_nneg,fms_nring,vos,vos_geo,vos_hvy,vos_pos,vos_neg,vos_phob,vos_phil\n" )
+    filehandle.write( "name_dock,cont_score,vdw,es,int_energy,num_hb,rot_bond,fps_sum,fps_vdw,fps_es,fps_hb,desc_score,fms,fms_tot,fms_max_ref,fms_max_lig,fms_nphob,fms_ndon,fms_nacc,fms_naro,fms_npos,fms_nneg,fms_nring,vos,vos_geo,vos_hvy,vos_pos,vos_neg,vos_phob,vos_phil\n" )
     for i in range(len(data)):
         write_molecule(data[i], filehandle)
     filehandle.close()
@@ -160,22 +241,36 @@ def write_csv(data, filename):
 # Main
 def main():
 
-    if (len(sys.argv) != 5):
-        print "Usage: " + sys.argv[0] + " <in_mol2> <in_rotbonds> <max_num> <out_prefix>"
+    if (len(sys.argv) != 6):
+        print "Usage: " + sys.argv[0] + " <small,full> <in_mol2> <in_rotbonds> <max_num> <out_prefix>"
 	return
 
-    in_mol2       = sys.argv[1]
-    in_rotbonds   = sys.argv[2]
-    max_num       = int(sys.argv[3])
-    out_prefix    = sys.argv[4]
+    run_type      = sys.argv[1]
+    in_mol2       = sys.argv[2]
+    in_rotbonds   = sys.argv[3]
+    max_num       = int(sys.argv[4])
+    out_prefix    = sys.argv[5]
 
-    long_list, short_list   = read_molecule(in_mol2, in_rotbonds, max_num);
-    out_filename_long_list  = out_prefix + "_sorted_contScore_all.csv";
-    out_filename_short_list = out_prefix + "_sorted_contScore_" + str(max_num) + ".csv";
+    if (run_type == "small"):
+        long_list, short_list   = read_molecule_small(in_mol2, in_rotbonds, max_num);
+        out_filename_long_list  = out_prefix + "_sorted_contScore_all_small.csv";
+        out_filename_short_list = out_prefix + "_sorted_contScore_" + str(max_num) + "_small.csv";
+    
+        write_csv_small(long_list, out_filename_long_list)
+        write_csv_small(short_list, out_filename_short_list)
+        return
 
-    write_csv(long_list, out_filename_long_list)
-    write_csv(short_list, out_filename_short_list)
-    return
+    elif (run_type == "full"):
+        long_list, short_list   = read_molecule(in_mol2, in_rotbonds, max_num);
+        out_filename_long_list  = out_prefix + "_sorted_contScore_all.csv";
+        #out_filename_short_list = out_prefix + "_sorted_contScore_" + str(max_num) + ".csv";
+    
+        write_csv(long_list, out_filename_long_list)
+        #write_csv(short_list, out_filename_short_list)
+        return
+
+    else:
+        return
 
 
 if __name__ == "__main__":
